@@ -1,0 +1,10 @@
+dashboard
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+cucumber.json
+.env
+main.py
+index.html
