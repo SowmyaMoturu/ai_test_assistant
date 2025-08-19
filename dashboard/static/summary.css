@@ -1,0 +1,168 @@
+/* summary.css: Styles for summary.html */
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #eaf6ff 0%, #f4f7f9 100%);
+    margin: 0;
+    padding: 20px;
+    color: #222;
+    font-size: 0.97em;
+}
+
+#metrics {
+    max-width: 900px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 32px 40px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44,62,80,0.10);
+    font-size: 0.96em;
+}
+#metrics h2 {
+    color: #1a355e;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    font-size: 1.13em;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 4px;
+}
+#metrics table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 0.95em;
+}
+#metrics th, #metrics td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+    font-size: 0.95em;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 32px 40px;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(44,62,80,0.10);
+    font-size: 0.97em;
+}
+
+h1 {
+    font-size: 1.3em;
+    font-weight: 500;
+    color: #1a355e;
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    background: linear-gradient(90deg, #eaf6ff 0%, #f4f7f9 100%);
+    border-radius: 8px;
+}
+
+.upload-section {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    font-size: 0.97em;
+}
+
+.upload-section form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#file-input {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: #fdfdff;
+    cursor: pointer;
+    font-size: 0.97em;
+}
+
+#upload-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.97em;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#upload-button:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+#upload-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#upload-status {
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: 0.97em;
+}
+
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 3px solid #fff;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#report-type {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #bcdffb;
+    background: #f7fbff;
+    font-size: 0.97em;
+    margin-right: 10px;
+}
+
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 0.95em;
+}
+.metrics-table th, .metrics-table td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.95em;
+}
+.metrics-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+.metrics-table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+.view-details-link {
+    display: block;
+    text-align: right;
+    margin-bottom: 18px;
+    font-size: 1.1em;
+    color: #2563eb;
+    text-decoration: underline;
+}

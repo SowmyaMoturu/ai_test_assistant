@@ -1,62 +1,62 @@
+// details.js: Handles table, filters, and upload for details.html
+
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
     const tableBody = document.querySelector('#results-table tbody');
     const squadFilter = document.getElementById('squad-filter');
+    const errorTypeFilter = document.getElementById('error-type-filter');
     const uploadForm = document.getElementById('upload-form');
     const fileInput = document.getElementById('file-input');
     const uploadButton = document.getElementById('upload-button');
     const uploadStatus = document.getElementById('upload-status');
     const reportTypeSelect = document.getElementById('report-type');
-    
+
     let allResults = [];
 
     // --- File Upload Logic ---
     if (uploadForm) {
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const file = fileInput.files[0];
             const reportType = reportTypeSelect.value;
-
             if (!file) {
-                uploadStatus.textContent = 'Please select a file to upload.';
-                uploadStatus.style.color = '#dc3545';
+                if (uploadStatus) {
+                    uploadStatus.textContent = 'Please select a file to upload.';
+                    uploadStatus.style.color = '#dc3545';
+                }
                 return;
             }
-
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('report_type', reportType); 
-
-            // Add loading state
-            uploadStatus.textContent = 'Uploading and analyzing...';
-            uploadStatus.style.color = '#333';
+            formData.append('report_type', reportType);
+            if (uploadStatus) {
+                uploadStatus.textContent = 'Uploading and analyzing...';
+                uploadStatus.style.color = '#333';
+            }
             uploadButton.disabled = true;
             uploadButton.innerHTML = '<div class="spinner"></div> Processing...';
-
             try {
                 const response = await fetch('/upload-cucumber-report/', {
                     method: 'POST',
                     body: formData
                 });
-
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.message || 'Server error occurred.');
                 }
-
                 const result = await response.json();
-                uploadStatus.textContent = `✅ ${result.message}`;
-                uploadStatus.style.color = '#28a745';
-                
+                if (uploadStatus) {
+                    uploadStatus.textContent = `✅ ${result.message}`;
+                    uploadStatus.style.color = '#28a745';
+                }
+                fileInput.value = '';
                 await fetchData();
-                fileInput.value = ''; // Clear file input
             } catch (error) {
-                uploadStatus.textContent = `❌ Upload failed: ${error.message}`;
-                uploadStatus.style.color = '#dc3545';
+                if (uploadStatus) {
+                    uploadStatus.textContent = `❌ Upload failed: ${error.message}`;
+                    uploadStatus.style.color = '#dc3545';
+                }
                 console.error('Upload Error:', error);
             } finally {
-                // Remove loading state
                 uploadButton.disabled = false;
                 uploadButton.innerHTML = 'Upload & Analyze Report';
             }
@@ -72,10 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             allResults = await response.json();
             populateSquadFilter(allResults);
+            populateErrorTypeFilter(allResults);
             renderTable(allResults);
         } catch (error) {
             console.error('Error fetching data:', error);
-            tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Failed to load data.</td></tr>';
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:red;">Failed to load data.</td></tr>';
+            }
         }
     }
 
@@ -90,13 +93,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function populateErrorTypeFilter(data) {
+        errorTypeFilter.innerHTML = '<option value="all">All Error Types</option>';
+        const errorTypesSet = new Set();
+        data.forEach(item => {
+            let type = 'Unknown Error';
+            if (item.error_message && typeof item.error_message === 'string') {
+                type = item.error_message.split(':')[0] || 'Unknown Error';
+            }
+            errorTypesSet.add(type);
+        });
+        Array.from(errorTypesSet).sort().forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            errorTypeFilter.appendChild(option);
+        });
+    }
+
     function renderTable(data) {
         tableBody.innerHTML = '';
         if (data.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No results found.</td></tr>';
             return;
         }
-
         data.forEach((result, index) => {
             const rowIndex = tableBody.children.length;
             const mainRow = document.createElement('tr');
@@ -112,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
             `;
             tableBody.appendChild(mainRow);
-
             const detailsRow = document.createElement('tr');
             detailsRow.classList.add('details-row');
             detailsRow.id = `details-row-${rowIndex}`;
@@ -136,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             tableBody.appendChild(detailsRow);
         });
-
         document.querySelectorAll('.details-button').forEach(button => {
             button.onclick = (event) => {
                 const id = event.target.dataset.id;
@@ -159,12 +177,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    squadFilter.addEventListener('change', (e) => {
-        const selectedSquad = e.target.value;
-        const filteredData = selectedSquad === 'all'
-            ? allResults
-            : allResults.filter(item => item.squad_name === selectedSquad);
-        renderTable(filteredData);
+    function getFilteredData() {
+        let filtered = allResults;
+        const selectedSquad = squadFilter ? squadFilter.value : 'all';
+        const selectedErrorType = errorTypeFilter ? errorTypeFilter.value : 'all';
+        if (selectedSquad !== 'all') {
+            filtered = filtered.filter(item => item.squad_name === selectedSquad);
+        }
+        if (selectedErrorType !== 'all') {
+            filtered = filtered.filter(item => {
+                if (!item.error_message) return selectedErrorType === 'Unknown Error';
+                return item.error_message.split(':')[0] === selectedErrorType;
+            });
+        }
+        return filtered;
+    }
+
+    squadFilter.addEventListener('change', () => {
+        renderTable(getFilteredData());
+    });
+    errorTypeFilter.addEventListener('change', () => {
+        renderTable(getFilteredData());
     });
 
     fetchData();

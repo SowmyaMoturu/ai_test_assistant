@@ -1,3 +1,4 @@
+/* details.css: Styles for details.html */
 body {
     font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #eaf6ff 0%, #f4f7f9 100%);
@@ -16,8 +17,8 @@ body {
 }
 
 h1 {
-    font-size: 1.6em;      /* Decreased font size */
-    font-weight: 500;      /* Slightly lighter weight */
+    font-size: 1.6em;
+    font-weight: 500;
     color: #1a355e;
     text-align: center;
     margin-bottom: 24px;
@@ -42,7 +43,7 @@ h1 {
     font-size: 1.08em;
 }
 
-#squad-filter {
+#squad-filter, #error-type-filter {
     padding: 10px 18px;
     border: 1px solid #bcdffb;
     border-radius: 7px;
@@ -51,8 +52,9 @@ h1 {
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(44,62,80,0.03);
     transition: border 0.2s;
+    margin-right: 8px;
 }
-#squad-filter:focus {
+#squad-filter:focus, #error-type-filter:focus {
     border-color: #007bff;
 }
 
@@ -168,22 +170,20 @@ tr:hover {
 .details-button:hover {
     background: #bdbdbd;
     box-shadow: 0 4px 16px rgba(44,62,80,0.13);
-}   
+}
 .details-content h4 {
-    color: #555;           /* Change from blue to grey */
+    color: #555;
     margin-top: 0;
     margin-bottom: 10px;
-    font-size: 1.13em;
+    font-size: 1em;
     font-weight: 600;
     letter-spacing: 0.5px;
 }
-/* Make table font smaller and cleaner */
 table, th, td {
-    font-size: 0.95em;      /* Slightly smaller font */
+    font-size: 0.95em;
     font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
     color: #222;
 }
-
 th {
     font-size: 1em;
     font-weight: 600;
@@ -191,33 +191,26 @@ th {
     color: #444;
     letter-spacing: 0.5px;
 }
-
 .details-content {
-    font-size: 0.93em;      /* Smaller font for details */
+    font-size: 0.93em;
 }
-
 .details-content h4 {
     font-size: 1em;
     color: #555;
 }
-
-/* ... (existing styles) ... */
-
-/* Upload Section */
 .upload-section {
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: center;
     margin-bottom: 25px;
     flex-wrap: wrap;
+    font-size: 0.97em;
 }
-
 .upload-section form {
     display: flex;
     gap: 10px;
     align-items: center;
 }
-
 #file-input {
     border: 1px solid #ccc;
     padding: 8px;
@@ -225,7 +218,6 @@ th {
     background-color: #fdfdff;
     cursor: pointer;
 }
-
 #upload-button {
     background-color: #28a745;
     color: white;
@@ -239,22 +231,17 @@ th {
     align-items: center;
     gap: 8px;
 }
-
 #upload-button:hover:not(:disabled) {
     background-color: #218838;
 }
-
 #upload-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
-
 #upload-status {
     margin-left: 20px;
     font-weight: bold;
 }
-
-/* Spinner CSS */
 .spinner {
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
@@ -263,12 +250,10 @@ th {
     height: 16px;
     animation: spin 1s linear infinite;
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-
 #report-type {
     padding: 6px 12px;
     border-radius: 6px;
@@ -277,4 +262,3 @@ th {
     font-size: 1em;
     margin-right: 10px;
 }
-/* ... (existing styles) ... */

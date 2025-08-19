@@ -27,7 +27,7 @@ class BaseChain(BaseModel):
 
     def process_single(self, item: Dict[str, Any]) -> Any:
         chain = self._prepare_llm_input| self.llm | self.output_parser
-        return chain.invoke([item])
+        return chain.invoke([item]) 
     
     def _process_single_token_batch(self, token_batch: List[Dict[str, Any]]) -> List[Any]:
         chain = self._prepare_llm_input| self.llm | self.output_parser

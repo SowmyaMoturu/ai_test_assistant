@@ -3,34 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Regression Results Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Detailed Regression Results</title>
+    <link rel="stylesheet" href="/static/details.css">
 </head>
 <body>
     <div class="dashboard-container">
-        
-        <h1>Regression Results Dashboard</h1>
-
-        <div class="upload-section">
-            <form id="upload-form">
-                <input type="file" id="file-input" name="file" accept=".json" required>
-                <select id="report-type" name="report_type">
-                        <option value="ui">UI Report</option>
-                        <option value="api">API Report</option>
-                    </select>
-                <button type="submit" id="upload-button">Upload & Analyze Report</button>
-                
-            </form>
-            <div id="upload-status"></div>
+        <h1>Detailed Regression Results</h1>
+        <div style="text-align:right;margin-bottom:18px;">
+            <a href="/" style="font-size:1.1em;color:#2563eb;text-decoration:underline;">&#8592; Back to Summary</a>
         </div>
-
         <div class="filter-section">
             <label for="squad-filter">Filter by Squad:</label>
             <select id="squad-filter">
                 <option value="all">All Squads</option>
             </select>
+            <label for="error-type-filter" style="margin-left:24px;">Filter by Error Type:</label>
+            <select id="error-type-filter">
+                <option value="all">All Error Types</option>
+            </select>
         </div>
-
         <div class="results-table-container">
             <table id="results-table">
                 <thead>
@@ -49,7 +40,6 @@
             </table>
         </div>
     </div>
-
-    <script src="/static/script.js"></script>
+    <script src="/static/details.js"></script>
 </body>
 </html>

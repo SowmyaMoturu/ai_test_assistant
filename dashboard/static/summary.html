@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Summary Metrics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/summary.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Test Summary Metrics (from result.json failures)</h1>
+
+        <div class="upload-section">
+            <form id="upload-form">
+                <input type="file" id="file-input" name="file" accept=".json" required>
+                <select id="report-type" name="report_type">
+                    <option value="ui">UI Report</option>
+                    <option value="api">API Report</option>
+                </select>
+                <button type="submit" id="upload-button">Upload & Analyze Report</button>
+            </form>
+            <div id="upload-status"></div>
+        </div>
+
+        <a href="/details" class="view-details-link">View Detailed Results</a>
+
+        <div id="metrics">
+            <!-- Metrics will be loaded here by script.js -->
+        </div>
+    </div>
+    <script src="/static/summary.js"></script>
+</body>
+</html>
