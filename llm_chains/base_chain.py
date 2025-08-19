@@ -27,14 +27,11 @@ class BaseChain(BaseModel):
 
     def process_single(self, item: Dict[str, Any]) -> Any:
         chain = self._prepare_llm_input| self.llm | self.output_parser
-        return chain.invoke(item)
+        return chain.invoke([item])
     
     def _process_single_token_batch(self, token_batch: List[Dict[str, Any]]) -> List[Any]:
-        logger.info(f"Processing batch with {len(token_batch)} items.")
-        results = []
-        with ThreadPoolExecutor(max_workers=min(len(token_batch), self.batch_size)) as executor:
-            results = list(executor.map(self.process_single, token_batch))
-        return results
+        chain = self._prepare_llm_input| self.llm | self.output_parser
+        return chain.invoke(token_batch)
 
     def process_batch(self, batch: List[Dict[str, Any]]) -> List[Any]:
         num_items = len(batch)
