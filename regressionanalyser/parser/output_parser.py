@@ -48,11 +48,11 @@ class CustomOutputParser(PydanticOutputParser, BaseModel):
             
             if isinstance(parsed_data, list):
                 # If it's a list, validate each item.
-                return [self.pydantic_object.model_validate(item) for item in parsed_data]
+                return [[self.pydantic_object.model_validate(item)] for item in parsed_data]
             else:
                 # If it's a single dict, validate and wrap in a list.
                 validated_item = self.pydantic_object.model_validate(parsed_data)
-                return alidated_item
+                return [validated_item]
         except (json.JSONDecodeError, ValidationError) as e:
             # Re-raising the error with the cleaned text for better debugging.
             raise ValueError(
