@@ -8,6 +8,8 @@ import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 import logging
 
+from regressionanalyser.analyzer.ui_analyzer import UIFailureAnalyzer
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ try:
     output_parser = CustomOutputParser(pydantic_object=FailureAnalysisResult)
     llm = ClaudeModel(model_name="claude-3-opus-20240229", api_key=os.environ.get("CLAUDE_API_KEY"))
     
-    ui_analyzer = APIFailureAnalyzer(llm=llm, batch_size=4, output_parser=output_parser)
+    ui_analyzer = UIFailureAnalyzer(llm=llm, batch_size=4, output_parser=output_parser)
     api_analyzer = APIFailureAnalyzer(llm=llm, batch_size=4, output_parser=output_parser)
     analysis_components_ready = True
 except ImportError as e:
@@ -49,6 +51,7 @@ current_results_data = []
 
 @app.post("/upload-cucumber-report/")
 async def upload_cucumber_report(file: UploadFile = File(...), report_type: str= Form("api")):
+    logger.info(f"Received file upload: {file.filename}, type: {report_type}")
     """Uploads a Cucumber report, analyzes it, and saves results."""
     if not analysis_components_ready:
         return JSONResponse(status_code=500, content={"message": "Analysis components not initialized."})
@@ -59,8 +62,6 @@ async def upload_cucumber_report(file: UploadFile = File(...), report_type: str=
             results = ui_analyzer.analyzeReport(report_data)
         else:
             results = api_analyzer.analyzeReport(report_data)
-
-        print("Analyzer returned:", results, type(results))  # <-- Add this line
 
         # Type check: handle string or error result
         if isinstance(results, str):

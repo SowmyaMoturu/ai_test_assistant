@@ -1,6 +1,9 @@
 from llm_chains.base_chain import BaseChain
 from langchain_core.messages import HumanMessage
 from typing import List, Dict, Any
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FailureChain(BaseChain):
     mode: str = "api"  # or "ui"
@@ -29,6 +32,7 @@ class FailureChain(BaseChain):
         return super().process_batched_items(items_no_screenshot, max_chars=max_chars)
 
     def run(self, failures: List[Dict[str, Any]]) -> List[Any]:
+        logger.info(f"{self.mode} analyzer processing {len(failures)} failures.")
         if self.mode == "ui":
             return self.process_batch(failures)
         else:

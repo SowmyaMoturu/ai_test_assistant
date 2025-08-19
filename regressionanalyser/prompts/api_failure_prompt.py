@@ -20,5 +20,6 @@ Error Category Determination Logic:
 Important Considerations:
 * Provide detailed and actionable insights.
 * Return ONLY Array of the JSON object, no extra text or information.
+* handle all escape chracters, should be able to parse json without cleanup
 
 {format_instructions}"""
