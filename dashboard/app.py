@@ -7,7 +7,12 @@ import json
 import pandas as pd
 from dotenv import load_dotenv, find_dotenv
 import logging
+from regressionanalyser.parser.cucumber_parser import CucumberParser
+from regressionanalyser.analyzer.api_analyzer import APIFailureAnalyzer
+from regressionanalyser.parser.output_parser import CustomOutputParser, FailureAnalysisResult
+from llm_wrappers.claude_llm_model import ClaudeModel
 
+from llm_wrappers.gemini_llm_model import GeminiModel
 from regressionanalyser.analyzer.ui_analyzer import UIFailureAnalyzer
 
 logging.basicConfig(level=logging.INFO)
@@ -21,14 +26,11 @@ app = FastAPI()
 # --- Your Project's Analysis Components ---
 # Assuming these modules exist in your project structure
 try:
-    from regressionanalyser.parser.cucumber_parser import CucumberParser
-    from regressionanalyser.analyzer.api_analyzer import APIFailureAnalyzer
-    from regressionanalyser.parser.output_parser import CustomOutputParser, FailureAnalysisResult
-    from llm_wrappers.claude_llm_model import ClaudeModel
+    
     
     input_parser = CucumberParser()
     output_parser = CustomOutputParser(pydantic_object=FailureAnalysisResult)
-    llm = ClaudeModel(model_name="claude-3-opus-20240229", api_key=os.environ.get("CLAUDE_API_KEY"))
+    llm = GeminiModel(model_name="gemini-2.0-flash", api_key=os.environ.get("GEMINI_API_KEY"))
     
     ui_analyzer = UIFailureAnalyzer(llm=llm, batch_size=4, output_parser=output_parser)
     api_analyzer = APIFailureAnalyzer(llm=llm, batch_size=4, output_parser=output_parser)
@@ -65,9 +67,9 @@ async def upload_cucumber_report(file: UploadFile = File(...), report_type: str=
 
         # Type check: handle string or error result
         if isinstance(results, str):
-            raise Exception(f"Analyzer returned error: {results}")
+            return JSONResponse(status_code=500, content={"message": f"Analyzer returned error: {results}"})
         if not isinstance(results, list):
-            raise Exception("Analyzer did not return a list of results.")
+            return JSONResponse(status_code=500, content={"message": "Analyzer did not return a list of results."})
 
         # Flatten results if any sublists exist
         flat_results = []
@@ -77,13 +79,27 @@ async def upload_cucumber_report(file: UploadFile = File(...), report_type: str=
             else:
                 flat_results.append(r)
         serializable_results = []
+        validation_errors = []
         for item in flat_results:
-            if hasattr(item, 'dict'):
-                serializable_results.append(item.dict())
-            elif hasattr(item, 'model_dump'):
-                serializable_results.append(item.model_dump())
-            else:
-                serializable_results.append(item)
+            try:
+                if hasattr(item, 'dict'):
+                    serializable_results.append(item.dict())
+                elif hasattr(item, 'model_dump'):
+                    serializable_results.append(item.model_dump())
+                elif isinstance(item, dict):
+                    serializable_results.append(item)
+                else:
+                    raise ValueError(f"Unexpected result type: {type(item)}")
+            except Exception as ve:
+                validation_errors.append(str(ve))
+
+        if validation_errors:
+            logger.error(f"LLM response validation errors: {validation_errors}")
+            return JSONResponse(status_code=500, content={
+                "message": "Some results could not be parsed or validated.",
+                "errors": validation_errors,
+                "raw_results": [str(item) for item in flat_results]
+            })
 
         with open("results.json", "w") as f:
             json.dump(serializable_results, f, indent=2)
@@ -92,7 +108,7 @@ async def upload_cucumber_report(file: UploadFile = File(...), report_type: str=
     except json.JSONDecodeError:
         return JSONResponse(status_code=400, content={"message": "Invalid JSON file."})
     except Exception as e:
-        print(f"Error during report upload: {e}")
+        logger.error(f"Error during report upload: {e}")
         return JSONResponse(status_code=500, content={"message": f"An error occurred: {str(e)}"})
 
 

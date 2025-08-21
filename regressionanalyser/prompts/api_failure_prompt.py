@@ -1,6 +1,7 @@
-def analyse_regression_failures_prompt(failure_details: str, format_instructions: str) -> str:
-    
-    return f"""Analyze the error message to determine the reason for the failure.
+from langchain_core.prompts import PromptTemplate
+
+api_failure_template = """
+Analyze the error message to determine the reason for the failure.
 
 Error Details: {failure_details}
 
@@ -22,4 +23,7 @@ Important Considerations:
 * Return ONLY Array of the JSON object, no extra text or information.
 * handle all escape chracters, should be able to parse json without cleanup
 
-{format_instructions}"""
+{format_instructions}
+"""
+
+analyse_regression_failures_prompt = PromptTemplate.from_template(api_failure_template)

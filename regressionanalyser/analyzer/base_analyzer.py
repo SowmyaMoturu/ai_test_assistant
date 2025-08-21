@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List
 
 from pydantic import BaseModel
-from langchain_community.llms import BaseLLM
+from langchain_core.language_models.chat_models import BaseChatModel
 from regressionanalyser.analyzer.failure_chain import FailureChain
 from regressionanalyser.parser.base_parser import BaseParser
 from regressionanalyser.parser.cucumber_parser import CucumberParser
@@ -12,7 +12,7 @@ from langchain.output_parsers import PydanticOutputParser
 
 class BaseFailureAnalyzer(ABC, BaseModel):
 
-    llm: BaseLLM
+    llm: BaseChatModel
     input_parser :BaseParser = CucumberParser()
     output_parser:CustomOutputParser = CustomOutputParser(pydantic_object=FailureAnalysisResult)
     batch_size :int= 25

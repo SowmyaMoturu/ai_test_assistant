@@ -1,6 +1,7 @@
-def analyse_regression_failures_prompt(failure_details: str, format_instructions: str) -> str:
-    
-    return f"""Analyze the error message and screenshot (if provided) to determine the reason for the failure.
+from langchain_core.prompts import PromptTemplate
+
+ui_failure_template = """
+Analyze the error message and screenshot (if provided) to determine the reason for the failure.
 
 Error Details: {failure_details}
 
@@ -21,4 +22,7 @@ Important Considerations:
 * Provide detailed and actionable insights.
 * Return ONLY the JSON object, no extra text or information.
 
-{format_instructions}"""
+{format_instructions}
+"""
+
+analyse_regression_failures_prompt = PromptTemplate.from_template(ui_failure_template)

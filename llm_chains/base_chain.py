@@ -1,9 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
 from pydantic import BaseModel
-from typing import Callable, List, Dict, Any
+from typing import List, Dict, Any
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import PydanticOutputParser
 import time
+from langchain_core.prompts import PromptTemplate
 
 import logging
 
@@ -13,21 +14,20 @@ class BaseChain(BaseModel):
 
     llm: Any
     output_parser: PydanticOutputParser
-    prompt_func: Callable
+    prompt_template: PromptTemplate
     batch_size: int = 25
     max_items_per_request: int = 5
     delay_between_batches: int = 60
 
 
-
     def _prepare_llm_input(self, items: List[Dict[str, Any]]) -> List[HumanMessage]:
         # Default implementation, can be overridden
-        prompt_text = self.prompt_func(items, self.output_parser.get_format_instructions())
+        prompt_text = self.prompt_template.format(items, self.output_parser.get_format_instructions())
         return [HumanMessage(content=prompt_text)]
 
     def process_single(self, item: Dict[str, Any]) -> Any:
         chain = self._prepare_llm_input| self.llm | self.output_parser
-        return chain.invoke([item]) 
+        return chain.invoke([item])
     
     def _process_single_token_batch(self, token_batch: List[Dict[str, Any]]) -> List[Any]:
         chain = self._prepare_llm_input| self.llm | self.output_parser
@@ -98,24 +98,40 @@ class BaseChain(BaseModel):
         batches = []
         current_batch = []
         current_char_count = 0
-    
-        for item in items:
+        dropped_items = []
+
+        for idx, item in enumerate(items):
             item_text = str(item)
             item_chars = len(item_text)
-    
+
+            # If item itself exceeds max_chars, drop and log it
+            if item_chars > max_chars:
+                logger.warning(f"Item at index {idx} exceeds max_chars ({max_chars}) and will be dropped.")
+                dropped_items.append(item)
+                continue
+
             # Start a new batch if adding this item would exceed limits
             if (current_batch and
                 (current_char_count + item_chars > max_chars or
                  len(current_batch) >= self.max_items_per_request)):
                 batches.append(current_batch)
-                current_batch = [item]
-                current_char_count = item_chars
-            else:
-                current_batch.append(item)
-                current_char_count += item_chars
-    
+                current_batch = []
+                current_char_count = 0
+
+            current_batch.append(item)
+            current_char_count += item_chars
+
+        # Add any remaining items as a final batch
         if current_batch:
             batches.append(current_batch)
-    
+
+        if dropped_items:
+            logger.warning(f"Dropped {len(dropped_items)} items due to exceeding max_chars.")
+
+        # Ensure all items are accounted for
+        total_in_batches = sum(len(batch) for batch in batches)
+        if total_in_batches + len(dropped_items) != len(items):
+            logger.error(f"Batching logic error: {len(items) - total_in_batches - len(dropped_items)} items unaccounted for.")
+
         return batches
   

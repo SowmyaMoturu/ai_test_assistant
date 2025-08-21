@@ -13,7 +13,7 @@ class FailureChain(BaseChain):
             failure = failures[0]
             # Remove screenshot from prompt input
             failure_for_prompt = {k: v for k, v in failure.items() if k != "screenshot"}
-            prompt_text = self.prompt_func(failure_for_prompt, self.output_parser.get_format_instructions())
+            prompt_text = self.prompt_template.format(failure_details=failure_for_prompt, format_instructions=self.output_parser.get_format_instructions())
             screenshot = failure.get("screenshot")
             if screenshot:
                 return [HumanMessage(content=prompt_text, additional_kwargs={"images": [screenshot]})]
